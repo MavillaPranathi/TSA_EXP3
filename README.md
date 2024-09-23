@@ -1,3 +1,5 @@
+### Developed by : M.Pranathi
+### Register no : 212222240064
 # Ex.No: 03   COMPUTE THE AUTO FUNCTION(ACF)
 Date: 
 
@@ -11,33 +13,62 @@ type to fit the data.
 4. Store the results in an array
 5. Represent the result in graphical representation as given below.
 ### PROGRAM:
+```
+import pandas as pd
 import matplotlib.pyplot as plt
-
 import numpy as np
+import seaborn as sns
+df=pd.read_csv('supermarketsales.csv')
+df.head()
 
-data = [3, 16, 156, 47, 246, 176, 233, 140, 130,
-101, 166, 201, 200, 116, 118, 247,
-209, 52, 153, 232, 128, 27, 192, 168, 208,
-187, 228, 86, 30, 151, 18, 254,
-76, 112, 67, 244, 179, 150, 89, 49, 83, 147, 90,
-33, 6, 158, 80, 35, 186, 127]
+# Convert 'Date' to datetime and set it as index
+df['Date'] = pd.to_datetime(df['Date'])
+df.set_index('Date', inplace=True)
 
-lags = range(35)
+# 1. Find the mean and variance of 'Total'
+mean_total = np.mean(df['Total'])
+variance_total = np.var(df['Total'])
 
+print(f"Mean of Total Sales: {mean_total}")
+print(f"Variance of Total Sales: {variance_total}")
 
-#Pre-allocate autocorrelation table
+# 2. Implement normalization (z-score normalization)
+df['Total_normalized'] = (df['Total'] - mean_total) / np.sqrt(variance_total)
 
-#Mean
+# 3. Compute autocorrelation function (ACF) manually for the first 35 lags
+def autocorrelation(series, lag):
+    n = len(series)
+    mean_series = np.mean(series)
+    var_series = np.var(series)
+    
+    autocorr = 0
+    for i in range(n - lag):
+        autocorr += (series[i] - mean_series) * (series[i + lag] - mean_series)
+    
+    return autocorr / ((n - lag) * var_series)
 
-#Variance
+# Compute autocorrelation for lags 0 through 35
+acf_values = [autocorrelation(df['Total_normalized'], lag) for lag in range(36)]
 
-#Normalized data
+# 4. Store results in an array
+acf_array = np.array(acf_values)
 
-#Go through lag components one-by-one
+# 5. Represent the results graphically (ACF plot)
+plt.figure(figsize=(10, 6))
+plt.stem(range(36), acf_array, use_line_collection=True)
+plt.title('Autocorrelation Function (ACF) for Normalized Total Sales')
+plt.xlabel('Lag')
+plt.ylabel('ACF')
+plt.grid(True)
+plt.show()
 
-#display the graph
+```
 
 ### OUTPUT:
 
+![image](https://github.com/user-attachments/assets/578de42c-0e61-46f6-bd31-13e163a2623e)
+
+![image](https://github.com/user-attachments/assets/39fac4ee-c9ea-40f6-9b18-a32ba8127dd2)
+
 ### RESULT:
-        Thus we have successfully implemented the auto correlation function in python.
+Thus we have successfully implemented the auto correlation function in python.
